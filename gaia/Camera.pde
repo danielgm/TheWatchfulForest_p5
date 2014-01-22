@@ -55,9 +55,9 @@ class Camera {
     tiltTarget = map(t, 0, 1, tiltRange[0], tiltRange[1]);
     
     println("Camera " + cameraId + " target pan/tilt: " + str(floor(panTarget)) + ", " + str(floor(tiltTarget)));
-    
+
+    animationDuration = getDuration(panStart, tiltStart, panTarget, tiltTarget);
     animationStart = millis();
-    animationDuration = 1000; // TODO: Different durations.
     hasTarget = true;
   }
   
@@ -101,6 +101,20 @@ class Camera {
   }
   
   
+  /**
+   * Calculate duration of animation given initial and final pan/tilt.
+   */
+  int getDuration(float p0, float t0, float p1, float t1) {
+    float dPan = p1 - p0;
+    float dTilt = t1 - t0;
+    float delta = sqrt(dPan * dPan + dTilt * dTilt);
+    
+    float rPan = panRange[1] - panRange[0];
+    float rTilt = tiltRange[1] - tiltRange[0];
+    float rDelta = sqrt(rPan * rPan + rTilt * rTilt);
+    
+    return floor(map(delta / rDelta, 0, 1, 1000, 3500));
+  }
   
   /**
    * Thanks, Penner!
