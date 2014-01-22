@@ -5,6 +5,8 @@ ArrayList<Camera> cameras;
 
 int time;
 
+Boolean kill;
+
 /*
 0: 178-700
 1: 290-580 (down-up)
@@ -23,27 +25,39 @@ void setup() {
   populateCameras();
 
   time = millis();
+  kill = false;
 }
 
 void draw() {
   for (int i = 0; i < cameras.size(); i++) {
     Camera camera = cameras.get(i);
     
-    if (!camera.isAsleep()) {
-      if (!camera.hasTarget()) {
-        camera.setPanTiltTarget(random(1), random(1));
-      }
-      
+    if (kill) {
       camera.update();
       sc.set(i * 2, camera.getPan());
       sc.set(i * 2 + 1, camera.getTilt());
       
       if (camera.isAnimationComplete()) {
-        camera.sleep(1500);
+        cameras.remove(i);
+        i--;
+      }
+    }
+    else { 
+      if (!camera.isAsleep()) {
+        if (!camera.hasTarget()) {
+          camera.setPanTiltTarget(random(1), random(1));
+        }
+        
+        camera.update();
+        sc.set(i * 2, camera.getPan());
+        sc.set(i * 2 + 1, camera.getTilt());
+        
+        if (camera.isAnimationComplete()) {
+          camera.sleep(1500);
+        }
       }
     }
   }
-  
 }
 
 void populateCameras() {
@@ -63,5 +77,14 @@ void populateCameras() {
 int[] range(int low, int high) {
   int[] result = {low, high};
   return result;
+}
+
+void mouseReleased() {
+  kill = true;
+  
+  for (int i = 0; i < cameras.size(); i++) {
+    Camera camera = cameras.get(i);
+    camera.setPanTiltTarget(0.5, 0.5);
+  }
 }
 
